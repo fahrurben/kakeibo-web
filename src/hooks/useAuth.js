@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { isEmpty } from 'lodash-es'
 import { proxy, useSnapshot } from 'valtio'
-// import { proxyWithComputed } from 'valtio/utils'
 
-function getAuthUser() {
+function getAuthUser () {
   const jwt = window.localStorage.getItem('jwtToken')
 
   if (!jwt) return {}
@@ -11,20 +10,30 @@ function getAuthUser() {
   return JSON.parse(atob(jwt))
 }
 
-const state = proxy(
-  {
-    authUser: getAuthUser(),
+const state = proxy({
+  authUser: {
+    get getAuthUser () {
+      const jwt = window.localStorage.getItem('jwtToken')
+
+      if (!jwt) return {}
+
+      return JSON.parse(atob(jwt))
+    },
   },
-  {
-    isAuth: (snap) => !isEmpty(snap.authUser),
-  }
-)
+  isAuth: {
+    get isAuth() {
+      return !isEmpty(this.authUser)
+    },
+  },
+})
 
 const actions = {
   login: (user) => {
     state.authUser = user
+    console.log(state.authUser)
 
-    window.localStorage.setItem('jwtToken', btoa(JSON.stringify(state.authUser)))
+    window.localStorage.setItem('jwtToken',
+      btoa(JSON.stringify(state.authUser)))
 
     axios.defaults.headers.Authorization = `Token ${state.authUser.token}`
   },
@@ -42,7 +51,7 @@ const actions = {
   },
 }
 
-function useAuth() {
+function useAuth () {
   const snap = useSnapshot(state)
 
   return {

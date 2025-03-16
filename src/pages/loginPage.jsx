@@ -32,7 +32,7 @@ const formSchema = z.object({
 })
 
 function LoginPage() {
-  const { authUser } = useAuth()
+  const { login } = useAuth()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -53,7 +53,7 @@ function LoginPage() {
         headers: { Authorization: `Bearer ${token}` }
       })
       let user = response.data
-      console.log(response.data)
+      login(user)
       toast('Login success')
       navigate("/")
     },
