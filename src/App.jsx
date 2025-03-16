@@ -7,6 +7,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import LoginPage from './pages/loginPage.jsx'
 
 const queryClient = new QueryClient()
 
@@ -16,6 +17,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       </BrowserRouter>

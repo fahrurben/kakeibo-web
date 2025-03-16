@@ -19,7 +19,7 @@ function InputText ({
         ? <FormLabel>{<label for={name}>{label}</label>}</FormLabel>
         : null}
       <FormControl>
-        <Input type="text" placeholder={placeholder} {...field} />
+        <Input type={type} placeholder={placeholder} {...field} />
       </FormControl>
       <FormMessage/>
     </FormItem>
