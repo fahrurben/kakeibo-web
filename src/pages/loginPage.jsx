@@ -23,16 +23,17 @@ import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
 import { show_form_error_message } from '../common/error_message.js'
 import InputText from '../components/base/InputText.jsx'
+import { API_URL } from '../common/constant'
 
-import useAuth from "../hooks/useAuth.js"
+import { useAuth } from "../provider/authProvider.jsx"
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 })
 
-function LoginPage() {
-  const { login } = useAuth()
+function LoginPage () {
+  const { token, setToken } = useAuth()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -45,23 +46,23 @@ function LoginPage() {
 
   const mutation = useMutation({
     mutationFn: (data) => {
-      return axios.post('http://127.0.0.1:8000/api/token/', data)
+      return axios.post(`${API_URL}/token/`, data)
     },
     onSuccess: async (data) => {
       let token = data.data.access
-      let response = await axios.get('http://127.0.0.1:8000/api/user/', {
-        headers: { Authorization: `Bearer ${token}` }
+      let response = await axios.get(`${API_URL}/user/`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
       let user = response.data
-      login(user)
+      setToken(token)
       toast('Login success')
-      navigate("/")
+      navigate('/')
     },
     onError: (error, variables, context) => {
       if (error.status === 400) {
         show_form_error_message(form, error)
       } else if (error.status === 401) {
-        toast("Wrong username or password")
+        toast('Wrong username or password')
       }
     },
   })
