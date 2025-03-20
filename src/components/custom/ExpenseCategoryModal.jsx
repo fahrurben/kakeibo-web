@@ -39,17 +39,24 @@ const formSchema = z.object({
 })
 
 
-function ExpenseCategoryModal({open, setOpen}) {
+function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
   const { token, setToken } = useAuth()
   const expenseCategoryOptions = mapToOptions(EXPENSE_CATEGORY_TYPE)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
+    defaultValues: {...initialData},
   })
+
   const navigate = useNavigate()
 
   const onSubmit = (data) => {
-    mutation.mutate(data)
+    if (initialData?.id !== null) {
+      data.id = initialData.id
+      mutationEdit.mutate(data)
+    } else {
+      mutation.mutate(data)
+    }
   }
 
   const mutation = useMutation({
@@ -67,9 +74,28 @@ function ExpenseCategoryModal({open, setOpen}) {
     },
   })
 
+  const mutationEdit = useMutation({
+    mutationFn: (data) => {
+      return axios.patch(`${API_URL}/expense-categories/${data.id}`, data)
+    },
+    onSuccess: async (data) => {
+      toast('Expense category updated sucessfully')
+      navigate(0)
+    },
+    onError: (error, variables, context) => {
+      if (error.status === 400) {
+        show_form_error_message(form, error)
+      }
+    },
+  })
+
   useEffect(() => {
     form.reset()
   }, [open])
+
+  useEffect(() => {
+    form.reset(initialData)
+  }, [initialData])
 
   return (
     <>

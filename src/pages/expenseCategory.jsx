@@ -2,7 +2,8 @@ import { Navigate } from 'react-router'
 import React, { useState } from 'react'
 import { useAuth } from "@/provider/authProvider.jsx"
 import { cn } from '@/common/cn.js'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router'
 import DataTable from '@/components/base/DataTable.jsx'
 import axios from 'axios'
 import { SidebarTrigger } from '../components/ui/sidebar.js'
@@ -10,48 +11,167 @@ import { Button } from '@/components/ui/button.js'
 import { Plus } from 'lucide-react'
 import Loading from '@/components/base/Loading.jsx'
 import ExpenseCategoryModal from '@/components/custom/ExpenseCategoryModal.jsx'
-import Combobox from '../components/base/ComboBox.jsx'
+import { API_URL, EXPENSE_CATEGORY_TYPE  } from '@/common/constant'
 
-export const columns = [
-  {
-    accessorKey: "type_label",
-    header: "Type",
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-  },
-  {
-    accessorFn: row => `${row.is_active ? 'Yes' : 'No'}`,
-    header: "Is Active",
-    meta: {
-      align: 'center'
-    },
-  },
-]
+import Combobox from '../components/base/ComboBox.jsx'
+import { MoreHorizontal } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { toast } from 'sonner'
 
 function ExpenseCategory() {
   const { token } = useAuth()
   const [open, setOpen] = useState(false)
+  const [initialData, setInitialData] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+
+  const navigate = useNavigate()
+
+  const columns = [
+    {
+      accessorKey: "type_label",
+      header: "Type",
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorFn: row => `${row.is_active ? 'Yes' : 'No'}`,
+      header: "Is Active",
+      meta: {
+        align: 'center'
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const id = row.original.id
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger >
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => showEditModal(id)}
+              >
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => deleteClicked(row.original)}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    },
+  ]
 
   const { isPending, isError, data, error } = useQuery({
     queryKey: ['expense-categories'],
     queryFn: () => {
-      return axios.get('http://127.0.0.1:8000/api/expense-categories')
+      return axios.get(`${API_URL}/expense-categories`)
     },
   })
+
+  const mutationDelete = useMutation({
+    mutationFn: (data) => {
+      return axios.delete(`${API_URL}/expense-categories/${data.id}`)
+    },
+    onSuccess: async (data) => {
+      toast('Expense category deleted sucessfully')
+      navigate(0)
+    },
+    onError: (error, variables, context) => {
+      if (error.status === 400) {
+        show_form_error_message(form, error)
+      }
+    },
+  })
+
+  const getPost = async (id) => {
+    try {
+      setIsLoading(true)
+      const response = await axios.get(
+        `${API_URL}/expense-categories/${id}`)
+
+      setIsLoading(false)
+      return response.data
+    } catch (e) {}
+
+    setIsLoading(false)
+    return null
+  }
+
+  const showCreateModal = () => {
+    setOpen(true)
+  }
+
+  const showEditModal = async (id) => {
+    const data = await getPost(id)
+    setInitialData(data)
+    setOpen(true)
+  }
+  const deleteClicked = (data) => {
+    setShowDeleteConfirmation(true)
+    setSelectedCategory(data)
+  }
 
   return (
       <>
         <div className={cn("flex")}>
           <h1 className={cn('text-lg font-bold mb-4')}>Expense Category</h1>
-          <Button size="icon" className={cn("ml-auto")} onClick={() => setOpen(true)}>
+          <Button size="icon" className={cn("ml-auto")} onClick={() => showCreateModal()}>
             <Plus/>
           </Button>
         </div>
         <DataTable columns={columns} data={data?.data?.results ?? []}/>
-        <ExpenseCategoryModal open={open} setOpen={setOpen}/>
-        <Loading isPending={isPending} />
+        <ExpenseCategoryModal initialData={initialData} open={open} setOpen={setOpen}/>
+        <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmation</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure to delete {selectedCategory?.name}?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => mutationDelete.mutate(selectedCategory)}>
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <Loading isPending={isPending || isLoading} />
       </>
   )
 }
