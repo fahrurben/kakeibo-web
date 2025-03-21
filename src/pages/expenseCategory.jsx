@@ -1,26 +1,21 @@
-import { Navigate } from 'react-router'
 import React, { useState } from 'react'
-import { useAuth } from "@/provider/authProvider.jsx"
 import { cn } from '@/common/cn.js'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import DataTable from '@/components/base/DataTable.jsx'
 import axios from 'axios'
-import { SidebarTrigger } from '../components/ui/sidebar.js'
 import { Button } from '@/components/ui/button.js'
 import { Plus } from 'lucide-react'
 import Loading from '@/components/base/Loading.jsx'
 import ExpenseCategoryModal from '@/components/custom/ExpenseCategoryModal.jsx'
-import { API_URL, EXPENSE_CATEGORY_TYPE  } from '@/common/constant'
+import { API_URL  } from '@/common/constant'
 
-import Combobox from '../components/base/ComboBox.jsx'
 import { MoreHorizontal } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -33,12 +28,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { toast } from 'sonner'
 
 function ExpenseCategory() {
-  const { token } = useAuth()
   const [open, setOpen] = useState(false)
   const [initialData, setInitialData] = useState({})
   const [isLoading, setIsLoading] = useState(false)
@@ -95,7 +88,7 @@ function ExpenseCategory() {
     },
   ]
 
-  const { isPending, isError, data, error } = useQuery({
+  const { isPending, data } = useQuery({
     queryKey: ['expense-categories'],
     queryFn: () => {
       return axios.get(`${API_URL}/expense-categories`)
@@ -106,14 +99,12 @@ function ExpenseCategory() {
     mutationFn: (data) => {
       return axios.delete(`${API_URL}/expense-categories/${data.id}`)
     },
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast('Expense category deleted sucessfully')
       navigate(0)
     },
-    onError: (error, variables, context) => {
-      if (error.status === 400) {
-        show_form_error_message(form, error)
-      }
+    onError: (error) => {
+      console.log(error)
     },
   })
 
@@ -125,7 +116,9 @@ function ExpenseCategory() {
 
       setIsLoading(false)
       return response.data
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
 
     setIsLoading(false)
     return null

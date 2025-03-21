@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router'
+import { BrowserRouter, Route, Routes } from 'react-router'
 import { Toaster } from "@/components/ui/sonner"
 
 import Register from './pages/register.jsx'
@@ -9,10 +9,8 @@ import {
 } from '@tanstack/react-query'
 import LoginPage from './pages/loginPage.jsx'
 import ExpenseCategory from './pages/expenseCategory.jsx'
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from './components/custom/AppSidebar.jsx'
+import { SidebarProvider } from "@/components/ui/sidebar"
 import HomePage from './pages/homePage.jsx'
-import { cn } from './common/cn.js'
 import AuthProvider from "./provider/authProvider";
 import MainLayout from './pages/mainLayout.jsx'
 

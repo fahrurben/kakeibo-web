@@ -17,17 +17,15 @@ import {
   Form,
   FormField,
 } from '@/components/ui/form'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
-import moment from 'moment'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
 import { show_form_error_message } from '@/common/error_message.js'
 import InputText from '@/components/base/InputText.jsx'
 import { API_URL, EXPENSE_CATEGORY_TYPE  } from '@/common/constant'
 
-import { useAuth } from "@/provider/authProvider.jsx"
 import Combobox from '@/components/base/ComboBox.jsx'
 import { mapToOptions } from '@/common/utils.js'
 import { Loader2 } from 'lucide-react'
@@ -40,7 +38,6 @@ const formSchema = z.object({
 
 
 function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
-  const { token, setToken } = useAuth()
   const expenseCategoryOptions = mapToOptions(EXPENSE_CATEGORY_TYPE)
 
   const form = useForm({
@@ -63,11 +60,11 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
     mutationFn: (data) => {
       return axios.post(`${API_URL}/expense-categories`, data)
     },
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast('Expense category created sucessfully')
       navigate(0)
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       if (error.status === 400) {
         show_form_error_message(form, error)
       }
@@ -78,11 +75,11 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
     mutationFn: (data) => {
       return axios.patch(`${API_URL}/expense-categories/${data.id}`, data)
     },
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast('Expense category updated sucessfully')
       navigate(0)
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       if (error.status === 400) {
         show_form_error_message(form, error)
       }

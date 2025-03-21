@@ -15,10 +15,8 @@ import {
   Form,
   FormField,
 } from '@/components/ui/form'
-import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
-import moment from 'moment'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
 import { show_form_error_message } from '../common/error_message.js'
@@ -33,7 +31,7 @@ const formSchema = z.object({
 })
 
 function LoginPage () {
-  const { token, setToken } = useAuth()
+  const { setToken } = useAuth()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -50,15 +48,14 @@ function LoginPage () {
     },
     onSuccess: async (data) => {
       let token = data.data.access
-      let response = await axios.get(`${API_URL}/user/`, {
+      await axios.get(`${API_URL}/user/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      let user = response.data
       setToken(token)
       toast('Login success')
       navigate('/')
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       if (error.status === 400) {
         show_form_error_message(form, error)
       } else if (error.status === 401) {
@@ -66,8 +63,6 @@ function LoginPage () {
       }
     },
   })
-
-  const [date, setDate] = useState(new Date())
 
   return (
     <div className={cn(

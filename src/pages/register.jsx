@@ -16,7 +16,6 @@ import {
   FormField,
 } from '@/components/ui/form'
 import DatePicker from '../components/base/DatePicker.jsx'
-import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import moment from 'moment'
@@ -52,14 +51,12 @@ function Register () {
       toast('Register success')
       navigate('/')
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       if (error.status === 400) {
         show_form_error_message(form, error)
       }
     },
   })
-
-  const [date, setDate] = useState(new Date())
 
   return (
     <div className={cn(
