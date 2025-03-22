@@ -99,7 +99,9 @@ function IncomeModal({initialData = {}, open, setOpen}) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className={cn("mb-4")}>New</DialogTitle>
+            <DialogTitle className={cn("mb-4")}>
+              {'id' in initialData && initialData?.id !== null ? "Edit" : "New"}
+            </DialogTitle>
             <DialogDescription>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

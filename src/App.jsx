@@ -13,7 +13,8 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import HomePage from './pages/homePage.jsx'
 import AuthProvider from "./provider/authProvider";
 import MainLayout from './pages/mainLayout.jsx'
-import Income from './pages/income.jsx'
+import IncomePage from './pages/incomePage.jsx'
+import ExpensePage from './pages/expensePage.jsx'
 
 const queryClient = new QueryClient()
 
@@ -30,7 +31,8 @@ function App() {
                 <Route element={<MainLayout />}>
                   <Route path="/" element={<HomePage/>}/>
                   <Route path="/expense-category" element={<ExpenseCategory/>}/>
-                  <Route path="/income" element={<Income />} />
+                  <Route path="/income" element={<IncomePage />} />
+                  <Route path="/expense" element={<ExpensePage />} />
                 </Route>
               </Routes>
               <Toaster/>

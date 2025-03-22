@@ -17,28 +17,34 @@ import {
   Form,
   FormField,
 } from '@/components/ui/form'
-import { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
 import { show_form_error_message } from '@/common/error_message.js'
 import InputText from '@/components/base/InputText.jsx'
-import { API_URL, EXPENSE_CATEGORY_TYPE  } from '@/common/constant'
+import { API_URL } from '@/common/constant'
 
 import Combobox from '@/components/base/ComboBox.jsx'
-import { mapToOptions } from '@/common/utils.js'
 import { Loader2 } from 'lucide-react'
+import DatePicker from '../base/DatePicker.jsx'
+import moment from 'moment/moment.js'
+import { mapToOptions } from '../../common/utils.js'
+import { MONTH_LIST } from '../../common/constant.js'
+import { Textarea } from '../ui/textarea.js'
+import InputTextArea from '../base/InputTextArea.jsx'
 
 const formSchema = z.object({
-  type: z.string(),
-  name: z.string().min(3).max(255),
+  category_id: z.string(),
+  date: z.coerce.date(),
   description: z.string().min(3).max(1000),
+  amount: z.coerce.number(),
+  details: z.string().min(3).max(1000),
 })
 
-
-function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
-  const expenseCategoryOptions = mapToOptions(EXPENSE_CATEGORY_TYPE)
+function ExpenseModal({initialData = {}, open, setOpen}) {
+  const [categories, setCategories] = useState([])
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -48,6 +54,8 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
   const navigate = useNavigate()
 
   const onSubmit = (data) => {
+    data.date = moment(data.date).format('YYYY-MM-DD')
+
     if ('id' in initialData && initialData?.id !== null) {
       data.id = initialData.id
       mutationEdit.mutate(data)
@@ -58,10 +66,10 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
 
   const mutation = useMutation({
     mutationFn: (data) => {
-      return axios.post(`${API_URL}/expense-categories`, data)
+      return axios.post(`${API_URL}/expenses`, data)
     },
     onSuccess: async () => {
-      toast('Expense category created sucessfully')
+      toast('Expense created sucessfully')
       navigate(0)
     },
     onError: (error) => {
@@ -73,10 +81,10 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
 
   const mutationEdit = useMutation({
     mutationFn: (data) => {
-      return axios.patch(`${API_URL}/expense-categories/${data.id}`, data)
+      return axios.patch(`${API_URL}/expenses/${data.id}`, data)
     },
     onSuccess: async () => {
-      toast('Expense category updated sucessfully')
+      toast('Expense updated sucessfully')
       navigate(0)
     },
     onError: (error) => {
@@ -85,6 +93,31 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
       }
     },
   })
+
+  const getCategories = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/expense-categories`)
+
+      return response.data.results
+    } catch (e) {
+      console.log(e)
+    }
+
+    return null
+  }
+
+  useEffect(() => {
+    const getData = async () => {
+      let categories = await getCategories()
+      let categoryOptions = categories.map((category) => ({
+        "label": category.name,
+        "value": category.id.toString(),
+      }))
+      console.log(categoryOptions)
+      return categoryOptions
+    }
+    getData().then((categoryOptions) => setCategories(categoryOptions))
+  }, [])
 
   useEffect(() => {
     form.reset()
@@ -107,22 +140,33 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   <FormField
                     control={form.control}
-                    name="type"
+                    name="category_id"
                     render={({ field }) => (
-                      <Combobox name="type" field={field} label="Type" options={expenseCategoryOptions} />
+                      <Combobox name="category_id" label="Category" field={field} options={categories} />
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <InputText name="name" label="Name" placeholder="Name" field={field}/>)}
+                    name="date"
+                    render={({ field }) => (<DatePicker label="Date" field={field}/>)}
                   />
                   <FormField
                     control={form.control}
                     name="description"
                     render={({ field }) => (
                       <InputText name="description" label="Description" placeholder="Description" field={field}/>)}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <InputText name="amount" type="number" label="Amount" placeholder="Amount" field={field} />)}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="details"
+                    render={({ field }) => (
+                      <InputTextArea name="details" label="Details" placeholder="Details" field={field}/>)}
                   />
                   <div className={'flex justify-end'}>
                     <Button type="submit" onClick={() => form.handleSubmit(onSubmit)}>
@@ -137,8 +181,7 @@ function ExpenseCategoryModal({initialData = {}, open, setOpen}) {
         </DialogContent>
       </Dialog>
     </>
-
   )
 }
 
-export default ExpenseCategoryModal
+export default ExpenseModal

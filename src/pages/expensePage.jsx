@@ -42,8 +42,9 @@ import {
   FormField,
 } from '@/components/ui/form'
 import moment from 'moment'
+import ExpenseModal from '../components/custom/expenseModal.jsx'
 
-function Income() {
+function ExpensePage() {
   const currentMonth = (moment().month() + 1).toString()
   const currentYear = START_YEAR
   const navigate = useNavigate()
@@ -116,15 +117,15 @@ function Income() {
   })
 
   const { isPending, data } = useQuery({
-    queryKey: ['incomes', month, year],
+    queryKey: ['expenses', month, year],
     queryFn: () => {
-      return axios.get(`${API_URL}/incomes?month=${month}&year=${year}`)
+      return axios.get(`${API_URL}/expenses?month=${month}&year=${year}`)
     },
   })
 
   const mutationDelete = useMutation({
     mutationFn: (data) => {
-      return axios.delete(`${API_URL}/incomes/${data.id}`)
+      return axios.delete(`${API_URL}/expenses/${data.id}`)
     },
     onSuccess: async () => {
       toast('Income deleted sucessfully')
@@ -139,7 +140,7 @@ function Income() {
     try {
       setIsLoading(true)
       const response = await axios.get(
-        `${API_URL}/incomes/${id}`)
+        `${API_URL}/expenses/${id}`)
 
       setIsLoading(false)
       return response.data
@@ -156,6 +157,7 @@ function Income() {
 
   const showEditModal = async (id) => {
     const data = await getIncome(id)
+    data.category_id = data.category_id.toString()
     setInitialData(data)
     setOpen(true)
   }
@@ -165,14 +167,14 @@ function Income() {
   }
 
   const filterOnSubmit = (data) => {
-   setMonth(data.month)
-   setYear(data.year)
+    setMonth(data.month)
+    setYear(data.year)
   }
 
   return (
     <>
       <div className={cn("flex")}>
-        <h1 className={cn('text-lg font-bold')}>Income</h1>
+        <h1 className={cn('text-lg font-bold')}>Expense</h1>
         <Button size="icon" className={cn("ml-auto")} onClick={() => showCreateModal()}>
           <Plus/>
         </Button>
@@ -199,7 +201,7 @@ function Income() {
         </Form>
       </div>
       <DataTable columns={columns} data={data?.data?.results ?? []}/>
-      <IncomeModal initialData={initialData} open={open} setOpen={setOpen} />
+      <ExpenseModal initialData={initialData} open={open} setOpen={setOpen} />
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -221,4 +223,4 @@ function Income() {
   )
 }
 
-export default Income
+export default ExpensePage

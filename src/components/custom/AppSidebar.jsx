@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings, Folder } from 'lucide-react'
+import { Calendar, Home, Inbox, Search, Settings, Folder, Grid2x2, LayoutGrid } from 'lucide-react'
 
 import { Link } from 'react-router'
 
@@ -23,17 +23,17 @@ const items = [
   {
     title: 'Expense Category',
     url: '/expense-category',
-    icon: Folder,
+    icon: LayoutGrid,
   },
   {
     title: 'Income',
     url: '/income',
-    icon: Folder,
+    icon: LayoutGrid,
   },
   {
-    title: 'Search',
-    url: '#',
-    icon: Folder,
+    title: 'Expense',
+    url: '/expense',
+    icon: LayoutGrid,
   },
   {
     title: 'Settings',
