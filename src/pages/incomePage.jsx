@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { cn } from '@/common/cn.js'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
@@ -31,7 +31,7 @@ import {
 import { toast } from 'sonner'
 import IncomeModal from '../components/custom/incomeModal.jsx'
 import Combobox from '../components/base/ComboBox.jsx'
-import { mapToOptions } from '../common/utils.js'
+import { checkAuth, mapToOptions } from '../common/utils.js'
 import { MONTH_LIST, START_YEAR } from '../common/constant.js'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -42,10 +42,12 @@ import {
   FormField,
 } from '@/components/ui/form'
 import moment from 'moment'
+import { useAuth } from '../provider/authProvider.jsx'
 
 function IncomePage() {
   const currentMonth = (moment().month() + 1).toString()
   const currentYear = START_YEAR
+  const { token } = useAuth()
   const navigate = useNavigate()
 
   const [open, setOpen] = useState(false)
@@ -60,6 +62,10 @@ function IncomePage() {
   for (let y=START_YEAR; y <= moment().year(); y++) {
     yearOptions.push({"label": y, "value": y.toString() })
   }
+
+  useEffect(() => {
+    checkAuth(token, navigate)
+  }, [])
 
   const columns = [
     {

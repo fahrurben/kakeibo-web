@@ -15,6 +15,7 @@ import AuthProvider from "./provider/authProvider";
 import MainLayout from './pages/mainLayout.jsx'
 import IncomePage from './pages/incomePage.jsx'
 import ExpensePage from './pages/expensePage.jsx'
+import LogoutPage from './pages/logout.jsx'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,7 @@ function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/register" element={<Register/>}/>
+                <Route path="/logout" element={<LogoutPage/>}/>
                 <Route element={<MainLayout />}>
                   <Route path="/" element={<HomePage/>}/>
                   <Route path="/expense-category" element={<ExpenseCategory/>}/>

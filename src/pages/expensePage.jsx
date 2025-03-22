@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { cn } from '@/common/cn.js'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
@@ -31,7 +31,7 @@ import {
 import { toast } from 'sonner'
 import IncomeModal from '../components/custom/incomeModal.jsx'
 import Combobox from '../components/base/ComboBox.jsx'
-import { mapToOptions } from '../common/utils.js'
+import { checkAuth, mapToOptions } from '../common/utils.js'
 import { MONTH_LIST, START_YEAR } from '../common/constant.js'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -43,10 +43,12 @@ import {
 } from '@/components/ui/form'
 import moment from 'moment'
 import ExpenseModal from '../components/custom/expenseModal.jsx'
+import { useAuth } from '../provider/authProvider.jsx'
 
 function ExpensePage() {
   const currentMonth = (moment().month() + 1).toString()
   const currentYear = START_YEAR
+  const { token } = useAuth()
   const navigate = useNavigate()
 
   const [open, setOpen] = useState(false)
@@ -56,6 +58,10 @@ function ExpensePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+
+  useEffect(() => {
+    checkAuth(token, navigate)
+  }, [])
 
   let yearOptions = []
   for (let y=START_YEAR; y <= moment().year(); y++) {

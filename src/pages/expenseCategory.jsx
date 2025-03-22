@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { cn } from '@/common/cn.js'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
@@ -30,6 +30,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from 'sonner'
+import { checkAuth } from '../common/utils.js'
+import { useAuth } from '../provider/authProvider.jsx'
 
 function ExpenseCategory() {
   const [open, setOpen] = useState(false)
@@ -38,7 +40,12 @@ function ExpenseCategory() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
+  const { token } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    checkAuth(token, navigate)
+  }, [])
 
   const columns = [
     {

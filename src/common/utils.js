@@ -5,3 +5,9 @@ export function mapToOptions(obj) {
   }
   return options
 }
+
+export function checkAuth(token, navigate) {
+  if (!token) {
+    navigate("/logout")
+  }
+}

@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings, Folder, Grid2x2, LayoutGrid } from 'lucide-react'
+import { Home, Settings, LayoutGrid, CirclePower } from 'lucide-react'
 
 import { Link } from 'react-router'
 
@@ -36,9 +36,9 @@ const items = [
     icon: LayoutGrid,
   },
   {
-    title: 'Settings',
-    url: '#',
-    icon: Settings,
+    title: 'Logout',
+    url: '/logout',
+    icon: CirclePower,
   },
 ]
 
