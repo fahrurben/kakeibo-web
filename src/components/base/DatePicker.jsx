@@ -11,19 +11,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import * as React from 'react'
+import { FormLabel } from '../ui/form.js'
 
-function DatePicker ({ field }) {
+function DatePicker ({ field, label = "" }) {
+  const [open, setOpen] = React.useState(false)
   const [date, setDate] = useState(field.value)
 
   const onChange = (date) => {
     field.onChange(date)
     setDate(date)
+    setOpen(false)
   }
 
   return (
     <FormItem>
+      {label !== ''
+        ? <FormLabel>{<label for={name}>{label}</label>}</FormLabel>
+        : null}
       <FormControl>
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger>
             <Button
               variant={'outline'}
@@ -31,6 +38,7 @@ function DatePicker ({ field }) {
                 'w-full justify-start text-left font-normal',
                 !date && 'text-muted-foreground',
               )}
+              type="button"
             >
               <CalendarIcon className="mr-2 h-4 w-4"/>
               {date ? format(date, 'PPP') : <span>Pick a date</span>}

@@ -26,8 +26,8 @@ const items = [
     icon: Folder,
   },
   {
-    title: 'Calendar',
-    url: '#',
+    title: 'Income',
+    url: '/income',
     icon: Folder,
   },
   {
